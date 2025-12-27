@@ -1,0 +1,73 @@
+import time
+import os
+import csv
+from collections import defaultdict
+from scapy.all import sniff, IP
+
+# -------- CONFIG --------
+CAPTURE_WINDOW = 5  # seconds
+OUTPUT_FILE = "../ml_engine/live_traffic.csv"
+
+# Store per-IP statistics
+ip_stats = defaultdict(lambda: {"packets": 0, "bytes": 0})
+
+
+def process_packet(pkt):
+    """
+    Called for every captured packet
+    """
+    if IP in pkt:
+        src_ip = pkt[IP].src
+        ip_stats[src_ip]["packets"] += 1
+        ip_stats[src_ip]["bytes"] += len(pkt)
+
+
+def write_csv():
+    """
+    Write per-IP statistics to CSV
+    """
+    with open(OUTPUT_FILE, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["ip", "duration", "packets", "bytes", "rate"])
+
+        for ip, stats in ip_stats.items():
+            rate = stats["packets"] / CAPTURE_WINDOW
+            writer.writerow([
+                ip,
+                CAPTURE_WINDOW,
+                stats["packets"],
+                stats["bytes"],
+                rate
+            ])
+
+
+def main():
+    print("[CAPTURE] Per-IP live traffic capture started")
+
+    while True:
+        ip_stats.clear()
+
+        # Capture traffic for CAPTURE_WINDOW seconds
+        sniff(
+            filter="ip",
+            prn=process_packet,
+            timeout=CAPTURE_WINDOW,
+            store=False
+        )
+
+        # Write latest stats
+        write_csv()
+
+        # Console output for visibility
+        for ip, stats in ip_stats.items():
+            rate = stats["packets"] / CAPTURE_WINDOW
+            print(
+                f"[CAPTURE] {ip} → packets={stats['packets']}, "
+                f"bytes={stats['bytes']}, rate={rate:.2f}"
+            )
+
+        time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()
