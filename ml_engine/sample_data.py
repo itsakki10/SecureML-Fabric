@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-
+ 
 np.random.seed(42)
 normal_data = pd.DataFrame({
     "duration": np.random.normal(10, 2, 500),

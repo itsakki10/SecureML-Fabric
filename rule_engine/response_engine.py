@@ -12,7 +12,7 @@ LOG_FILE = os.path.join(LOG_DIR, "blocked_ips.log")
 BLOCK_DURATION = 300  # seconds (5 minutes)
 
 os.makedirs(LOG_DIR, exist_ok=True)
-
+ 
 # In-memory TTL registry
 BLOCK_EXPIRY = {}
 

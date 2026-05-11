@@ -1,6 +1,6 @@
 def generate_waf_rules(anomaly_score, traffic):
     rules = []
-
+ 
     # Thresholds (simple & explainable)
     if anomaly_score < -0.15:
         rules.append({

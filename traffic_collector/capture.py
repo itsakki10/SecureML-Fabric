@@ -27,7 +27,7 @@ def process_packet(pkt):
 
     ip_stats[src_ip]["packets"] += 1
     ip_stats[src_ip]["bytes"] += len(pkt)
-
+ 
 # ================= CSV WRITER =================
 def write_csv():
     now = datetime.utcnow().isoformat()
